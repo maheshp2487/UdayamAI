@@ -7,8 +7,8 @@ import { Footer } from "@/components/layout/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "UdayamAI - Financial Assistance & Scheme Matching",
-  description: "Find the right scheme. Understand your finances. Reach the right partner. A prototype for Smart India Hackathon 2026.",
+  title: "UdayamAI - Business Feasibility & Financial Structuring",
+  description: "Know your market. Plan your business. Build your future.",
 };
 
 export default function RootLayout({

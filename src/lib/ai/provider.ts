@@ -2,7 +2,7 @@ import { generateGeminiResponse } from './gemini';
 
 export interface AIContextParams {
   topic: string;
-  context: Record<string, any>;
+  context: Record<string, unknown>;
   language?: string;
 }
 

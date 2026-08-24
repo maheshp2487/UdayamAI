@@ -1,41 +1,38 @@
 # UdayamAI
 
-**Smart India Hackathon 2026 - Problem Statement 26092**
-*AI-Driven Scheme Matching for Marginalized Entrepreneurs*
+**Know your market. Plan your business. Build your future.**
 
-UdayamAI is a robust, deterministic, and highly accessible web platform designed to seamlessly connect marginalized entrepreneurs with the right government concessional finance schemes (such as NSFDC and NSKFDC), assess their financial readiness, and locate the nearest channel partners.
+UdayamAI is a multilingual hyper-local business advisory and financial structuring platform. It helps rural and semi-urban micro-entrepreneurs evaluate business ideas using location-aware market intelligence and build a clear financing plan before applying for concessional credit.
 
----
+This project was built to solve **Smart India Hackathon Problem Statement 26091**: 
+*AI-Driven Hyper-Local Business Advisory and Financial Structuring Assistant for Rural Micro-Entrepreneurs*.
 
-## 🚀 Quick Start (Local Run)
+## Core Features
 
-The application is built to run flawlessly even without external API credentials by utilizing its built-in fallback modes (local seed data and deterministic engines).
+1. **Hyper-Local Business Feasibility Analysis**
+   Evaluates a business idea based on Geographic Location, Margin Capital, and Business Category. Generates:
+   - Market Reach (5–10km radius)
+   - Local Opportunity Analysis
+   - Localized SWOT & Threat Identification
+   - Competitor Mapping
+   - Product Market Value & Pricing Strategy
 
-1. **Install Dependencies**:
-   ```bash
-   npm install
-   ```
-2. **Start the Development Server**:
-   ```bash
-   npm run dev
-   ```
-   *(On Windows, if you run into Execution Policy issues, try `npm.cmd run dev`)*
-3. **Open the App**:
-   Navigate to [http://localhost:3000](http://localhost:3000)
+2. **Smart Financial Structuring (10/90 Rule)**
+   Automatically structures the proposed business using a strict 10% Margin / 90% Loan formulation:
+   - **Project Cost Calculation**: `Margin / 0.10`
+   - **Micro Finance Auto-Routing**: Applied when Project Cost ≤ 1.40 Lakh (6.5% interest, 3 years, 3 mo moratorium).
+   - **Term Loan Auto-Routing**: Applied when Project Cost > 1.40 Lakh (8% interest, 7 years, 6 mo moratorium).
+   - **Quarterly EMI & Moratorium Engine**: Generates precise quarterly amortization schedules including simple interest accumulation during the moratorium.
+   - **Working Capital Allocation**: Breaks down fixed costs vs operational buffer.
 
-**For detailed instructions and environment variable configuration, please read the full [Setup Guide](docs/SETUP_GUIDE.md).**
+3. **Deterministic Demo Fallback**
+   Even without live internet or AI API credentials, UdayamAI operates at 100% functionality using a deterministic, rule-based fallback architecture perfect for offline judging.
 
----
+## Getting Started
 
-## 🛠️ Tech Stack & Architecture
+```bash
+npm install
+npm run dev
+```
 
-- **Framework**: Next.js 16 (React 19)
-- **Styling**: Tailwind CSS & Shadcn UI
-- **Database (Optional)**: Supabase (falls back to local JSON repository if keys are absent)
-- **AI (Optional)**: Google Gemini (falls back to rule-based contextual matching explanations)
-
-## 📋 SIH Judging Guide
-
-For judging purposes, we have compiled an exhaustive readiness audit and traceability matrix that validates this prototype against every technical and functional requirement of Problem Statement 26092.
-
-**Read the final audit report:** [SIH_READINESS_AUDIT.md](docs/SIH_READINESS_AUDIT.md)
+Visit `http://localhost:3000` to begin the journey. Click **Analyze My Business Idea** to access the hyper-local assessment wizard.

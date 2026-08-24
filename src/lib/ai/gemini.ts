@@ -2,7 +2,7 @@ import { GoogleGenAI } from '@google/genai';
 
 export async function generateGeminiResponse(
   topic: string, 
-  context: Record<string, any>, 
+  context: Record<string, unknown>, 
   language: string, 
   apiKey: string
 ): Promise<string | null> {
@@ -21,7 +21,7 @@ export async function generateGeminiResponse(
       - Be concise, maximum 3 sentences.
       - Use professional, trustworthy tone.
       - Do not give financial advice, only factual explanation.
-      - If explaining why a scheme matched, use the provided Context.
+      - If explaining business feasibility or SWOT, use the provided Context.
     `;
 
     const response = await ai.models.generateContent({

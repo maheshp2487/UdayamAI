@@ -1,33 +1,25 @@
-import { Scheme, SchemeRule, ChannelPartner, DocumentRequirement } from '@/lib/types/schema';
-import { schemes, schemeRules, channelPartners, documentRequirements } from '@/data/seed';
+import { BusinessCategory } from '@/types/business';
+import { BUSINESS_CATEGORIES } from '@/data/business-categories';
+import { DEMO_SCENARIOS } from '@/data/demo-scenarios';
+import { AssessmentFormData } from '@/types/business';
 
-// This is the fallback repository architecture for UdayamAI
-// It mimics an async database client but uses static seed data if Supabase is unavailable.
+// This is the fallback repository architecture for UdayamAI (PS 26091)
+// It mimics an async database client but uses static seed data if a live DB is unavailable.
 
 export const Repository = {
-  getSchemes: async (): Promise<Scheme[]> => {
+  getBusinessCategories: async (): Promise<BusinessCategory[]> => {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 500));
-    return schemes;
+    return BUSINESS_CATEGORIES;
   },
 
-  getSchemeById: async (id: string): Promise<Scheme | undefined> => {
+  getBusinessCategoryById: async (id: string): Promise<BusinessCategory | undefined> => {
     await new Promise(resolve => setTimeout(resolve, 200));
-    return schemes.find(s => s.id === id);
+    return BUSINESS_CATEGORIES.find(c => c.id === id);
   },
 
-  getSchemeRules: async (schemeId: string): Promise<SchemeRule | undefined> => {
+  getDemoScenario: async (scenarioKey: string): Promise<AssessmentFormData | undefined> => {
     await new Promise(resolve => setTimeout(resolve, 200));
-    return schemeRules.find(r => r.scheme_id === schemeId);
-  },
-
-  getChannelPartners: async (): Promise<ChannelPartner[]> => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return channelPartners;
-  },
-
-  getDocumentRequirements: async (schemeId: string): Promise<DocumentRequirement[]> => {
-    await new Promise(resolve => setTimeout(resolve, 200));
-    return documentRequirements.filter(d => d.scheme_id === schemeId);
+    return DEMO_SCENARIOS[scenarioKey];
   }
 };

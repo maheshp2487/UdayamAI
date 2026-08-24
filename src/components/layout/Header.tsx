@@ -13,13 +13,13 @@ export function Header() {
         </Link>
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <nav className="flex items-center space-x-6 text-sm font-medium">
-            <Link href="/schemes" className="transition-colors hover:text-foreground/80 text-foreground/60 hidden md:block">Explore Schemes</Link>
-            <Link href="/planner" className="transition-colors hover:text-foreground/80 text-foreground/60 hidden md:block">Financial Planner</Link>
-            <Link href="/partners" className="transition-colors hover:text-foreground/80 text-foreground/60 hidden md:block">Partner Locator</Link>
+            <Link href="/advisor/results" className="transition-colors hover:text-foreground/80 text-foreground/60 hidden md:block">Advisory Report</Link>
+            <Link href="/financial-plan" className="transition-colors hover:text-foreground/80 text-foreground/60 hidden md:block">Financial Planner</Link>
+            <Link href="/dashboard" className="transition-colors hover:text-foreground/80 text-foreground/60 hidden md:block">Dashboard</Link>
           </nav>
           <div className="flex items-center space-x-2">
-            <Link href="/assessment">
-              <Button size="sm" className="hidden sm:flex">Check Eligibility</Button>
+            <Link href="/advisor">
+              <Button size="sm" className="hidden sm:flex">Generate Feasibility Report</Button>
             </Link>
             {/* Mobile menu could go here */}
           </div>
