@@ -105,16 +105,16 @@ export default function AdvisoryDashboard() {
 
     const textBank = {
       en: {
-        reach: `Estimated 5,000 to 12,000 primary consumers within a 10 km radius of ${data.location}. Main distribution via local weekly markets and direct-to-home delivery models.`,
+        reach: `Approx. 5,000 to 12,000 primary consumers within a 10km radius of ${data.location}. Primary distribution via local weekly markets and direct delivery models.`,
         opportunity: {
-          dairy: "High demand for A2 milk and organic ghee. Current supply chain is highly fragmented with limited organized players.",
-          retail: "Lack of organized FMCG retail in the immediate vicinity. High dependency on distant wholesale markets creates a clear local gap.",
+          dairy: "High latent demand for A2 milk and organic ghee. Current supply chain is highly fragmented with limited organized players.",
+          retail: "Absence of organized FMCG retail in the immediate vicinity. High reliance on distant wholesale markets creates a clear local gap.",
           default: "Moderate local demand with room for a well-positioned micro-enterprise to capture an underserved segment."
         },
-        swotS: { dairy: "Strong demand for fresh milk, low transport costs, established cooperative network.", default: "Low operational overhead and deep local customer trust." },
-        swotW: { dairy: "Dependency on fodder prices and veterinary access.", default: "Dependency on local supply chains with limited alternatives." },
-        swotO: { dairy: "Government dairy development subsidies, nearby cooperative tie-ups.", default: "Rising rural disposable income and preference for local produce." },
-        swotT: { dairy: "FMD outbreaks, seasonal fodder price volatility.", retail: "Incursion of large e-commerce platforms on discretionary spending.", default: "Cheap synthetic alternatives entering the local market." },
+        swotS: { dairy: `Strong demand for fresh milk in ${data.location}, low transport costs, established cooperative network.`, default: `Low operational overheads for your ${data.business_category} business provide financial resilience. Establishing deep customer trust in ${data.location} will drive repeat word-of-mouth marketing. Optimizing your ₹${financials.availableMargin.toLocaleString()} capital margin maximizes early profitability.` },
+        swotW: { dairy: `Dependency on fluctuating fodder prices and veterinary access in ${data.location}.`, default: `Dependency on fragmented local supply chains in ${data.location}. Limited backup vendors can cause operational bottlenecks during unexpected shortages. Your ${data.business_category} operations might be initially vulnerable to localized economic downturns.` },
+        swotO: { dairy: `Government dairy development subsidies, nearby cooperative tie-ups in ${data.location}.`, default: `Rising rural disposable income in ${data.location} allows for premium product positioning. Growing smartphone penetration allows for targeted WhatsApp marketing for your ${data.business_category} products. Opportunity to capture the growing consumer shift toward locally sourced, authentic items.` },
+        swotT: { dairy: `FMD disease outbreaks, seasonal fodder price volatility in ${data.location}.`, retail: `Aggressive incursion of large-scale e-commerce platforms into ${data.location}. Quick-commerce capturing the high-margin discretionary spending that traditionally went to local stores. Changing consumer habits moving away from traditional ${data.business_category} retail.`, default: `Cheap machine-made substitutes entering the local market. Aggressive incursion of large-scale e-commerce platforms into ${data.location}. Quick-commerce capturing the high-margin discretionary spending that traditionally went to local stores.` },
         threats: {
           dairy: "Key risks include FMD disease outbreaks and volatile fodder prices. Mitigate by joining milk producer cooperatives for price floor protection.",
           retail: "Incursion of large e-commerce logistics into tier-3 areas poses medium-term threat.",
@@ -215,8 +215,19 @@ export default function AdvisoryDashboard() {
   // Clean, professional palette matching UdayamAI brand (Emerald, Slate-900, Blue-500)
   const PIE_COLORS = ['#10b981', '#0f172a', '#3b82f6'];
 
+  const renderSwotItem = (content: string) => {
+    const lines = content.split('. ').filter(l => l.trim().length > 0);
+    return (
+      <ul className="list-disc pl-5 space-y-2">
+        {lines.map((line, i) => (
+          <li key={i}>{line.trim()}{line.endsWith('.') ? '' : '.'}</li>
+        ))}
+      </ul>
+    );
+  };
+
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl space-y-8">
+    <div className="container mx-auto px-4 py-8 max-w-6xl space-y-8 relative">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -243,7 +254,7 @@ export default function AdvisoryDashboard() {
         </div>
       </div>
 
-      <div className="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
+      <div className="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800 print:hidden">
         <Info className="h-4 w-4 mt-0.5 shrink-0" />
         <span><strong>Prototype Data:</strong> Market reach, competitor density, and pricing estimates are generated from deterministic templates. Future integration with live local datasets will replace these.</span>
       </div>
@@ -255,7 +266,8 @@ export default function AdvisoryDashboard() {
       )}
 
       {/* Tabs Dashboard */}
-      <Tabs defaultValue="market" className="w-full">
+      <div className="print:hidden">
+<Tabs defaultValue="market" className="w-full">
         <TabsList className="w-full h-14 bg-slate-100 flex p-1 mb-8">
           <TabsTrigger value="market" className="flex-1 data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm"><LayoutDashboard className="mr-2 h-4 w-4"/> {t.tab1}</TabsTrigger>
           <TabsTrigger value="swot" className="flex-1 data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm"><LineChart className="mr-2 h-4 w-4"/> {t.tab2}</TabsTrigger>
@@ -275,7 +287,7 @@ export default function AdvisoryDashboard() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 print:break-inside-avoid">
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><Target className="h-5 w-5 text-blue-500" /> {t.marketReach}</CardTitle></CardHeader>
               <CardContent className="text-slate-600 leading-relaxed">{ai.reach}</CardContent>
@@ -305,22 +317,22 @@ export default function AdvisoryDashboard() {
         {/* 2. SWOT MATRIX TAB */}
         <TabsContent value="swot" className="space-y-6">
           <h2 className="text-2xl font-semibold mb-6">{t.swot}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 print:break-inside-avoid">
             <Card className="border-green-200 bg-green-50/50 hover:shadow-md transition-shadow">
               <CardHeader className="pb-2"><CardTitle className="text-green-800 text-lg">Strengths (S)</CardTitle></CardHeader>
-              <CardContent className="text-green-900 leading-relaxed">{ai.swot.s}</CardContent>
+              <CardContent className="text-green-900">{renderSwotItem(ai.swot.s)}</CardContent>
             </Card>
             <Card className="border-red-200 bg-red-50/50 hover:shadow-md transition-shadow">
               <CardHeader className="pb-2"><CardTitle className="text-red-800 text-lg">Weaknesses (W)</CardTitle></CardHeader>
-              <CardContent className="text-red-900 leading-relaxed">{ai.swot.w}</CardContent>
+              <CardContent className="text-red-900">{renderSwotItem(ai.swot.w)}</CardContent>
             </Card>
             <Card className="border-blue-200 bg-blue-50/50 hover:shadow-md transition-shadow">
               <CardHeader className="pb-2"><CardTitle className="text-blue-800 text-lg">Opportunities (O)</CardTitle></CardHeader>
-              <CardContent className="text-blue-900 leading-relaxed">{ai.swot.o}</CardContent>
+              <CardContent className="text-blue-900">{renderSwotItem(ai.swot.o)}</CardContent>
             </Card>
             <Card className="border-amber-200 bg-amber-50/50 hover:shadow-md transition-shadow">
               <CardHeader className="pb-2"><CardTitle className="text-amber-800 text-lg">Threats (T)</CardTitle></CardHeader>
-              <CardContent className="text-amber-900 leading-relaxed">{ai.swot.t}</CardContent>
+              <CardContent className="text-amber-900">{renderSwotItem(ai.swot.t)}</CardContent>
             </Card>
           </div>
         </TabsContent>
@@ -329,7 +341,7 @@ export default function AdvisoryDashboard() {
         <TabsContent value="financial" className="space-y-6">
           <h2 className="text-2xl font-semibold mb-6">{t.module2}</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:break-inside-avoid">
             <div className="space-y-6">
               <Card className="border-primary/20 shadow-md">
                 <CardHeader className="bg-slate-50 pb-4 border-b">
@@ -459,6 +471,218 @@ export default function AdvisoryDashboard() {
           </div>
         </TabsContent>
       </Tabs>
+      </div>
+
+      {/* Print View: Stacked Document */}
+      <div className="absolute left-0 top-0 opacity-0 pointer-events-none -z-50 print:relative print:opacity-100 print:visible print:pointer-events-auto print:z-auto space-y-12 pb-12 print:!mt-8 w-full max-w-none">
+        
+        <div className="space-y-6">
+          <div className="print-section">
+            <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold">{t.module1}</h2>
+          </div>
+          
+          {data.business_vision && (
+            <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 italic text-slate-700 text-lg shadow-sm">
+              "{String(data.business_vision)}"
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 print:break-inside-avoid">
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><Target className="h-5 w-5 text-blue-500" /> {t.marketReach}</CardTitle></CardHeader>
+              <CardContent className="text-slate-600 leading-relaxed">{ai.reach}</CardContent>
+            </Card>
+
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><TrendingUp className="h-5 w-5 text-green-500" /> {t.opportunity}</CardTitle></CardHeader>
+              <CardContent className="text-slate-600 leading-relaxed">{ai.opportunity}</CardContent>
+            </Card>
+
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><Users className="h-5 w-5 text-purple-500" /> {t.competitors}</CardTitle></CardHeader>
+              <CardContent className="text-slate-600 leading-relaxed">{ai.competitors}</CardContent>
+            </Card>
+
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><IndianRupee className="h-5 w-5 text-amber-500" /> {t.pricing}</CardTitle></CardHeader>
+              <CardContent className="text-slate-600 leading-relaxed">{ai.pricing}</CardContent>
+            </Card>
+          </div>
+          <Card className="border-red-100 bg-red-50/30">
+            <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><AlertTriangle className="h-5 w-5 text-red-500" /> {t.threats}</CardTitle></CardHeader>
+            <CardContent className="text-slate-700 leading-relaxed">{ai.threats}</CardContent>
+          </Card>
+          </div>
+        </div>
+
+        <div className="border-b border-slate-200 my-12"></div>
+        
+        <div className="space-y-6">
+          <div className="print-section">
+            <h2 className="text-2xl font-semibold mb-6">{t.swot}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 print:break-inside-avoid">
+            <Card className="border-green-200 bg-green-50/50 hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2"><CardTitle className="text-green-800 text-lg">Strengths (S)</CardTitle></CardHeader>
+              <CardContent className="text-green-900">{renderSwotItem(ai.swot.s)}</CardContent>
+            </Card>
+            <Card className="border-red-200 bg-red-50/50 hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2"><CardTitle className="text-red-800 text-lg">Weaknesses (W)</CardTitle></CardHeader>
+              <CardContent className="text-red-900">{renderSwotItem(ai.swot.w)}</CardContent>
+            </Card>
+            <Card className="border-blue-200 bg-blue-50/50 hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2"><CardTitle className="text-blue-800 text-lg">Opportunities (O)</CardTitle></CardHeader>
+              <CardContent className="text-blue-900">{renderSwotItem(ai.swot.o)}</CardContent>
+            </Card>
+            <Card className="border-amber-200 bg-amber-50/50 hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2"><CardTitle className="text-amber-800 text-lg">Threats (T)</CardTitle></CardHeader>
+              <CardContent className="text-amber-900">{renderSwotItem(ai.swot.t)}</CardContent>
+            </Card>
+          </div>
+          </div>
+        </div>
+
+        <div className="border-b border-slate-200 my-12"></div>
+        
+        <div className="space-y-6">
+          <div className="print-section">
+            <h2 className="text-2xl font-semibold mb-6">{t.module2}</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:break-inside-avoid">
+            <div className="space-y-6">
+              <Card className="border-primary/20 shadow-md">
+                <CardHeader className="bg-slate-50 pb-4 border-b">
+                  <CardTitle className="text-xl">{t.scheme}</CardTitle>
+                  <CardDescription>Determined by Total Project Cost Requirements</CardDescription>
+                  <Badge className="w-fit text-sm mt-3 px-3 py-1" variant={financials.schemeId === "micro_finance" ? "secondary" : "default"}>
+                    {financials.schemeName}
+                  </Badge>
+                </CardHeader>
+                <CardContent className="pt-6 space-y-5 text-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-600">Your Capital Margin (10%)</span>
+                    <span className="font-semibold text-emerald-600">₹{financials.availableMargin.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-600">Approved Loan (90%)</span>
+                    <span className="font-semibold text-slate-900">₹{financials.effectiveLoan.toLocaleString()}</span>
+                  </div>
+                  <div className="border-t pt-4 mt-2 flex justify-between items-center font-bold text-xl">
+                    <span>Total Project Cost</span>
+                    <span>₹{financials.projectCost.toLocaleString()}</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">Scheme Terms</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 text-base">
+                  <div className="flex justify-between"><span className="text-slate-600">Interest Rate (p.a.)</span><span className="font-medium text-slate-900">{financials.interestRate}%</span></div>
+                  <div className="flex justify-between"><span className="text-slate-600">Tenure</span><span className="font-medium text-slate-900">{financials.tenureMonths} Months</span></div>
+                  <div className="flex justify-between"><span className="text-slate-600">Moratorium Period</span><span className="font-medium text-slate-900">{financials.moratoriumMonths} Months</span></div>
+                  <div className="flex justify-between border-t pt-3 mt-1"><span className="text-slate-600">Estimated Quarterly EMI</span><span className="font-bold text-lg text-slate-900">₹{Math.round(financials.quarterlyPayment).toLocaleString()}</span></div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Pie Chart */}
+            <Card className="flex flex-col items-center justify-center min-h-[400px] shadow-sm border-slate-200">
+              <CardHeader className="text-center w-full pb-0">
+                <CardTitle className="text-lg text-slate-700">Capital Leverage Visualization</CardTitle>
+                <CardDescription>Visualizing your 10/90 funding split and loan allocation</CardDescription>
+              </CardHeader>
+              <CardContent className="w-full flex-1 min-h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={80}
+                      outerRadius={110}
+                      paddingAngle={4}
+                      stroke="none"
+                      dataKey="value"
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <RechartsTooltip 
+                      contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                      formatter={(value: any) => `₹${Number(value || 0).toLocaleString()}`} 
+                    />
+                    <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '13px' }}/>
+                  </PieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+          </div>
+        </div>
+
+        <div className="border-b-2 border-slate-200 my-8 break-before-page"></div>
+        
+        <div className="space-y-8">
+          <div className="print-section">
+            <div>
+            <h2 className="text-2xl font-semibold mb-2">{t.schedule}</h2>
+            <p className="text-slate-500">Visualizing the 7-year amortization and moratorium impact.</p>
+          </div>
+
+          {/* Bar Chart Visualization */}
+          <Card className="p-6 shadow-sm border-slate-200">
+            <div className="h-[350px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={financials.amortizationSchedule} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis dataKey="quarter" tickFormatter={(q) => `Q${q}`} tick={{fontSize: 12, fill: '#64748b'}} tickLine={false} axisLine={false} dy={10} />
+                  <YAxis tickFormatter={(val) => `₹${val/1000}k`} tick={{fontSize: 12, fill: '#64748b'}} tickLine={false} axisLine={false} dx={-10} />
+                  <RechartsTooltip 
+                    cursor={{ fill: '#f1f5f9' }}
+                    contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    formatter={(value: any) => `₹${Math.round(Number(value || 0)).toLocaleString()}`} 
+                  />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: '13px', paddingTop: '20px' }} />
+                  <Bar dataKey="principal" stackId="a" fill="#0f172a" name="Principal Repayment" radius={[0, 0, 4, 4]} />
+                  <Bar dataKey="interest" stackId="a" fill="#94a3b8" name="Interest Accrual" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+          
+          <div className="border rounded-xl overflow-hidden bg-white shadow-sm border-slate-200">
+            <Table>
+              <TableHeader className="bg-slate-50">
+                <TableRow>
+                  <TableHead className="font-semibold text-slate-700">Quarter</TableHead>
+                  <TableHead className="font-semibold text-slate-700">Type</TableHead>
+                  <TableHead className="font-semibold text-slate-700">Total Payment</TableHead>
+                  <TableHead className="font-semibold text-slate-700">Principal</TableHead>
+                  <TableHead className="font-semibold text-slate-700">Interest</TableHead>
+                  <TableHead className="font-semibold text-slate-700 text-right">Remaining Balance</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {financials.amortizationSchedule.map((row) => (
+                  <TableRow key={row.quarter} className={row.isMoratorium ? "bg-amber-50/50 text-amber-900 border-b-amber-100" : ""}>
+                    <TableCell className="font-medium">Q{row.quarter}</TableCell>
+                    <TableCell>{row.isMoratorium ? <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-100">Moratorium</Badge> : "Repayment"}</TableCell>
+                    <TableCell>{row.isMoratorium ? "–" : `₹${Math.round(row.payment).toLocaleString()}`}</TableCell>
+                    <TableCell className={row.isMoratorium ? "text-amber-700" : "text-blue-600"}>{row.isMoratorium ? "–" : `₹${Math.round(row.principal).toLocaleString()}`}</TableCell>
+                    <TableCell className={row.isMoratorium ? "text-amber-700" : "text-amber-600"}>₹{Math.round(row.interest).toLocaleString()}</TableCell>
+                    <TableCell className="font-semibold text-right text-slate-700">₹{Math.round(row.balance).toLocaleString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          </div>
+        </div>
+      </div>
+
 
       {/* Floating AI Chatbot */}
       <ChatWidget reportContext={{ 

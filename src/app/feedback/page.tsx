@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Star, CheckCircle2, Loader2, MessageSquare } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Star, CheckCircle2, Loader2, MessageSquare, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
 export default function FeedbackPage() {
@@ -15,9 +16,15 @@ export default function FeedbackPage() {
   
   const [uxRating, setUxRating] = useState(0);
   const [finRating, setFinRating] = useState(0);
+  const [category, setCategory] = useState("");
+  const [showValidation, setShowValidation] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!category || uxRating === 0 || finRating === 0) {
+      setShowValidation(true);
+      return;
+    }
     setIsSubmitting(true);
     // Simulate API call
     setTimeout(() => {
@@ -62,10 +69,7 @@ export default function FeedbackPage() {
       <Card className="shadow-lg border-primary/10">
         <form onSubmit={handleSubmit}>
           <CardHeader>
-            <CardTitle>Submit Feedback</CardTitle>
-            <CardDescription>
-              All fields are optional, but detailed feedback helps us resolve issues faster.
-            </CardDescription>
+            <CardTitle className="text-xl">Submit Feedback</CardTitle>
           </CardHeader>
           
           <CardContent className="space-y-8 pt-4">
@@ -73,7 +77,7 @@ export default function FeedbackPage() {
             {/* Category */}
             <div className="space-y-3">
               <Label>Feedback Category</Label>
-              <Select>
+              <Select value={category} onValueChange={(v: string | null) => setCategory(v ?? '')}>
                 <SelectTrigger>
                   <SelectValue placeholder="What kind of feedback is this?" />
                 </SelectTrigger>
@@ -88,7 +92,7 @@ export default function FeedbackPage() {
             </div>
 
             {/* Ratings Grid */}
-            <div className="grid md:grid-cols-2 gap-6 bg-slate-50 p-4 rounded-xl border border-slate-100 mt-6">
+            <div className="grid md:grid-cols-2 gap-6 bg-slate-50 p-5 rounded-xl border border-slate-100">
               <div className="space-y-3">
                 <Label className="text-slate-700">Platform Ease of Use</Label>
                 <div className="flex gap-1">
@@ -123,7 +127,7 @@ export default function FeedbackPage() {
             </div>
 
             {/* Details */}
-            <div className="space-y-3 mt-6">
+            <div className="space-y-3">
               <Label>Detailed Feedback (Optional)</Label>
               <textarea 
                 className="flex min-h-[120px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
@@ -151,6 +155,25 @@ export default function FeedbackPage() {
           </CardFooter>
         </form>
       </Card>
+
+      <Dialog open={showValidation} onOpenChange={setShowValidation}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-rose-600">
+              <AlertCircle className="h-5 w-5" />
+              Missing Information
+            </DialogTitle>
+            <DialogDescription className="pt-2 text-base text-slate-700">
+              Please select a <strong>Feedback Category</strong> and provide a star rating for both <strong>Ease of Use</strong> and <strong>Financial Accuracy</strong> before submitting.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-end">
+            <DialogClose render={<Button variant="outline" />}>
+              Okay
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

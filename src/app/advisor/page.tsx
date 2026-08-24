@@ -102,11 +102,15 @@ export default function AdvisoryWizard() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Dairy & Livestock">Dairy & Livestock</SelectItem>
+                  <SelectItem value="Agriculture & Allied">Agriculture & Farming</SelectItem>
                   <SelectItem value="Retail & Trading">Retail & Trading</SelectItem>
+                  <SelectItem value="Food & Beverage">Food & Beverage</SelectItem>
+                  <SelectItem value="Manufacturing">Manufacturing</SelectItem>
                   <SelectItem value="Textiles & Handloom">Textiles & Handloom</SelectItem>
-                  <SelectItem value="Manufacturing">Manufacturing & Processing</SelectItem>
-                  <SelectItem value="Agriculture & Allied">Agriculture & Allied</SelectItem>
-                  <SelectItem value="Services">Services (e.g., Salon, Repair)</SelectItem>
+                  <SelectItem value="Services">Services (Salon, Repair, etc.)</SelectItem>
+                  <SelectItem value="Healthcare & Pharmacy">Healthcare & Pharmacy</SelectItem>
+                  <SelectItem value="Technology & IT">Technology & IT Services</SelectItem>
+                  <SelectItem value="Others">Others (Describe in Vision)</SelectItem>
                 </SelectContent>
               </Select>
             </div>

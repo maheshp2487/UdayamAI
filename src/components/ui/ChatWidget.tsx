@@ -20,10 +20,11 @@ export function ChatWidget({ reportContext }: { reportContext: any }) {
     }
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
+  const sendMessage = async (overrideInput?: string) => {
+    const textToSend = overrideInput || input;
+    if (!textToSend.trim()) return;
     
-    const newMessages = [...messages, { role: 'user', content: input }];
+    const newMessages = [...messages, { role: 'user', content: textToSend }];
     setMessages(newMessages as any);
     setInput('');
     setIsLoading(true);
@@ -92,9 +93,23 @@ export function ChatWidget({ reportContext }: { reportContext: any }) {
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-white border rounded-lg p-3 rounded-bl-none shadow-sm">
+                <div className="bg-white border rounded-lg p-3 rounded-bl-none shadow-sm flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin text-slate-500" />
+                  <span className="text-xs text-slate-500">Thinking...</span>
                 </div>
+              </div>
+            )}
+            
+            {/* Quick Actions */}
+            {messages.length === 1 && !isLoading && (
+              <div className="pt-2">
+                <p className="text-xs text-slate-500 mb-2 px-1">Not sure what to ask? Choose something:</p>
+                <button 
+                  onClick={() => sendMessage("Summarize the report")}
+                  className="text-xs bg-slate-200 hover:bg-slate-300 text-slate-800 py-1.5 px-3 rounded-full transition-colors border border-slate-300"
+                >
+                  Summarize the report
+                </button>
               </div>
             )}
           </CardContent>

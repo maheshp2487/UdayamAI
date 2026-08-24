@@ -130,6 +130,14 @@
 }
 
 @media print {
+  @page {
+    margin: 0;
+  }
+  
+  body {
+    padding: 1.5cm;
+  }
+
   /* Hide the Tab buttons during print */
   [data-slot="tabs-list"] {
     display: none !important;
@@ -141,6 +149,11 @@
     visibility: visible !important;
     opacity: 1 !important;
     margin-bottom: 3rem !important;
+  }
+
+  /* Hide the app Header and Footer during print */
+  header, footer, nav {
+    display: none !important;
   }
 
   /* Add page breaks between major sections if needed */
