@@ -13,9 +13,10 @@ export function Header() {
         </Link>
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <nav className="flex items-center space-x-6 text-sm font-medium">
-            <Link href="/advisor/results" className="transition-colors hover:text-foreground/80 text-foreground/60 hidden md:block">Advisory Report</Link>
-            <Link href="/financial-plan" className="transition-colors hover:text-foreground/80 text-foreground/60 hidden md:block">Financial Planner</Link>
-            <Link href="/dashboard" className="transition-colors hover:text-foreground/80 text-foreground/60 hidden md:block">Dashboard</Link>
+            <Link href="/advisor" className="transition-colors hover:text-foreground/80 text-foreground/60 hidden md:block">New Assessment</Link>
+            <Link href="/advisor/results" className="transition-colors hover:text-foreground/80 text-foreground/60 hidden md:block">My Report</Link>
+            <Link href="/business-ideas" className="transition-colors hover:text-foreground/80 text-foreground/60 hidden md:block">Explore Ideas</Link>
+            <Link href="/feedback" className="transition-colors hover:text-primary text-foreground/60 hidden md:block font-medium">Feedback</Link>
           </nav>
           <div className="flex items-center space-x-2">
             <Link href="/advisor">

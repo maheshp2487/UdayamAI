@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 type FormData = {
   location: string;
   business_category: string;
+  business_vision: string;
   available_margin: number;
 };
 
@@ -19,16 +20,19 @@ const DEMO_SCENARIOS = {
   dairy_micro: {
     location: "Kondagaon Block, Bastar",
     business_category: "Dairy & Livestock",
+    business_vision: "I want to buy 5 Gir cows and sell fresh A2 milk locally.",
     available_margin: 10000, // Leads to 1L project -> Micro Finance
   },
   retail_term: {
     location: "Palghar District, Maharashtra",
     business_category: "Retail & Trading",
+    business_vision: "Planning to open a small grocery shop targeting daily wage workers.",
     available_margin: 50000, // Leads to 5L project -> Term Loan
   },
   textiles_term: {
     location: "Varanasi Weavers Colony, UP",
     business_category: "Textiles & Handloom",
+    business_vision: "Setting up 2 manual looms to weave traditional silk sarees.",
     available_margin: 200000, // Leads to 20L project -> Term Loan
   }
 };
@@ -67,7 +71,7 @@ export default function AdvisoryWizard() {
       </div>
 
       <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg mb-8">
-        <div className="text-sm font-semibold text-amber-900 mb-2">Quick Fill Scenarios (Prefill Only)</div>
+        <div className="text-sm font-semibold text-amber-900 mb-2">Quick Fill Demo Scenarios (Or type your own below)</div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={() => loadDemo('dairy_micro')} className="bg-white hover:bg-amber-100 text-amber-900 border-amber-300">Dairy (Micro)</Button>
           <Button variant="outline" size="sm" onClick={() => loadDemo('retail_term')} className="bg-white hover:bg-amber-100 text-amber-900 border-amber-300">Retail (Term)</Button>
@@ -105,6 +109,17 @@ export default function AdvisoryWizard() {
                   <SelectItem value="Services">Services (e.g., Salon, Repair)</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="business_vision">Abstract Idea / Business Vision</Label>
+              <textarea 
+                id="business_vision"
+                className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                value={formData.business_vision || ''} 
+                onChange={e => updateField('business_vision', e.target.value)} 
+                placeholder="Briefly describe your idea in your own words (e.g. 'I want to open a small organic milk shop')" 
+              />
             </div>
 
             <div className="space-y-2">

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useSyncExternalStore, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { FinancialCalculator } from '@/lib/financial/financial-plan';
 import { Button } from '@/components/ui/button';
@@ -7,17 +7,27 @@ import { Download } from 'lucide-react';
 
 export default function ReportPage() {
   const router = useRouter();
-  const [reportData] = useState(() => {
-    if (typeof window === 'undefined') return null;
-    const raw = localStorage.getItem('advisoryData');
-    if (!raw) return null;
-    const data = JSON.parse(raw) as Record<string, string | number>;
-    return { data, financials: FinancialCalculator.calculatePS26091(Number(data.available_margin)) };
-  });
+  const rawData = useSyncExternalStore(
+    () => () => {},
+    () => typeof window !== 'undefined' ? localStorage.getItem('advisoryData') : null,
+    () => null
+  );
+
+  const reportData = useMemo(() => {
+    if (!rawData) return null;
+    try {
+      const data = JSON.parse(rawData) as Record<string, string | number>;
+      return { data, financials: FinancialCalculator.calculatePS26091(Number(data.available_margin)) };
+    } catch {
+      return null;
+    }
+  }, [rawData]);
 
   useEffect(() => {
-    if (!reportData) router.push('/advisor');
-  }, [reportData, router]);
+    if (typeof window !== 'undefined' && !rawData) {
+      router.push('/advisor');
+    }
+  }, [rawData, router]);
 
   if (!reportData) return <div className="p-12 text-center">Loading...</div>;
   const { data, financials } = reportData;
