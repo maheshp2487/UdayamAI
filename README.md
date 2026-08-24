@@ -32,7 +32,6 @@ The application is built to run flawlessly even without external API credentials
 - **Framework**: Next.js 16 (React 19)
 - **Styling**: Tailwind CSS & Shadcn UI
 - **Database (Optional)**: Supabase (falls back to local JSON repository if keys are absent)
-- **Maps (Optional)**: Mapbox (falls back to a calculated list-view locator)
 - **AI (Optional)**: Google Gemini (falls back to rule-based contextual matching explanations)
 
 ## 📋 SIH Judging Guide

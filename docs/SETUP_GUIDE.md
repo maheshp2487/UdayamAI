@@ -38,14 +38,12 @@ You can find the `.env` file in the root directory. Out of the box, it is empty.
 
 ### What happens if you leave `.env` empty?
 - **Supabase (Database)**: The application will automatically use an internal `FallbackRepository` that serves pre-populated, verified seed data (NSFDC, NSKFDC, etc.).
-- **Mapbox (Maps)**: The Channel Partner Locator will skip rendering the visual map and instead present a deterministic, ranked list view with distance calculations intact.
 - **Gemini (AI)**: The AI Guidance engine will bypass network requests and use a fast, deterministic local rule-engine to explain scheme matching reasons.
 
 If you *do* have keys, open the `.env` file in a text editor and populate them:
 ```env
 NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
-NEXT_PUBLIC_MAPBOX_TOKEN="pk.your-token..."
 GOOGLE_GEMINI_API_KEY="AIzaSy..."
 ```
 

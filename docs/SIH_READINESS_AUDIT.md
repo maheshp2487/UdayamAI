@@ -39,7 +39,6 @@ During the final audit phase, the following enhancements and fixes were made:
 
 ## External Integration Limitations & Disclaimers
 - **Data Layer**: Supabase environment variables are bypassed using a Fallback Repository (`src/lib/data/repository.ts`) pointing to static JSON.
-- **Mapbox**: The Mapbox integration is simulated using Haversine formula calculation for distance based on fixed coordinates in the Partner engine.
 - **Gemini**: The AI Assistant strictly relies on a deterministic knowledge-base fallback (`src/lib/ai/provider.ts`) if the API key is not present.
 - **Partner Data**: Current fund availability, processing capacity, and NPA flags are **Representative Prototype Data** only, as live API integrations with CBS (Core Banking Systems) are not available in a hackathon setting.
 
