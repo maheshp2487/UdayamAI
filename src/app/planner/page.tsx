@@ -61,7 +61,7 @@ export default function FinancialPlanner() {
                   <Label>Project Cost (₹)</Label>
                   <span className="text-sm font-medium">₹{(projectCost / 100000).toFixed(2)} L</span>
                 </div>
-                <Slider min={50000} max={10000000} step={50000} value={[projectCost]} onValueChange={(v: any) => setProjectCost(v[0])} />
+                <Slider min={50000} max={10000000} step={50000} value={[projectCost]} onValueChange={(v: any) => setProjectCost(Array.isArray(v) ? v[0] : v)} />
               </div>
 
               <div className="space-y-3">
@@ -69,7 +69,7 @@ export default function FinancialPlanner() {
                   <Label>Own Contribution (₹)</Label>
                   <span className="text-sm font-medium">₹{(ownContribution / 100000).toFixed(2)} L</span>
                 </div>
-                <Slider min={0} max={projectCost} step={10000} value={[ownContribution]} onValueChange={(v: any) => setOwnContribution(v[0])} />
+                <Slider min={0} max={projectCost} step={10000} value={[ownContribution]} onValueChange={(v: any) => setOwnContribution(Array.isArray(v) ? v[0] : v)} />
               </div>
 
               <div className="space-y-3">
@@ -77,7 +77,7 @@ export default function FinancialPlanner() {
                   <Label>Required Loan (₹)</Label>
                   <span className="text-sm font-medium text-primary">₹{(loanAmount / 100000).toFixed(2)} L</span>
                 </div>
-                <Slider min={10000} max={projectCost} step={10000} value={[loanAmount]} onValueChange={(v: any) => setLoanAmount(v[0])} />
+                <Slider min={10000} max={projectCost} step={10000} value={[loanAmount]} onValueChange={(v: any) => setLoanAmount(Array.isArray(v) ? v[0] : v)} />
               </div>
 
               <div className="space-y-3">
@@ -85,7 +85,7 @@ export default function FinancialPlanner() {
                   <Label>Interest Rate (% p.a.)</Label>
                   <span className="text-sm font-medium">{interestRate}%</span>
                 </div>
-                <Slider min={0} max={24} step={0.1} value={[interestRate]} onValueChange={(v: any) => setInterestRate(v[0])} />
+                <Slider min={0} max={24} step={0.1} value={[interestRate]} onValueChange={(v: any) => setInterestRate(Array.isArray(v) ? v[0] : v)} />
               </div>
 
               <div className="space-y-3">
@@ -93,7 +93,7 @@ export default function FinancialPlanner() {
                   <Label>Tenure (Months)</Label>
                   <span className="text-sm font-medium">{tenureMonths} mo</span>
                 </div>
-                <Slider min={12} max={120} step={6} value={[tenureMonths]} onValueChange={(v: any) => setTenureMonths(v[0])} />
+                <Slider min={12} max={120} step={6} value={[tenureMonths]} onValueChange={(v: any) => setTenureMonths(Array.isArray(v) ? v[0] : v)} />
               </div>
               
               <div className="space-y-3 pt-4 border-t">
