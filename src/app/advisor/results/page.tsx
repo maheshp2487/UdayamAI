@@ -2,7 +2,9 @@
 
 import { useEffect, useSyncExternalStore, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { FinancialCalculator } from "@/lib/financial/financial-plan";
+import { EntrepreneurReadinessEngine, EntrepreneurArchetypeInput } from "@/lib/engine/entrepreneurReadiness";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from "recharts";
 import { ChatWidget } from "@/components/ui/ChatWidget";
-import { Target, TrendingUp, AlertTriangle, Users, MapPin, IndianRupee, Download, Info, Globe, LayoutDashboard, LineChart, PieChart as PieIcon, CalendarDays } from "lucide-react";
+import { Target, TrendingUp, AlertTriangle, Users, MapPin, IndianRupee, Download, Info, Globe, LayoutDashboard, LineChart, PieChart as PieIcon, CalendarDays, X, BookOpen } from "lucide-react";
 
 const translations = {
   en: {
@@ -29,7 +31,8 @@ const translations = {
     tab1: "Market Analysis",
     tab2: "SWOT Matrix",
     tab3: "Financial Plan",
-    tab4: "Repayment Schedule"
+    tab4: "Repayment Schedule",
+    tab5: "Journey Readiness"
   },
   hi: {
     title: "हाइपर-लोकल व्यापार व्यवहार्यता रिपोर्ट",
@@ -46,7 +49,8 @@ const translations = {
     tab1: "बाजार विश्लेषण",
     tab2: "SWOT मैट्रिक्स",
     tab3: "वित्तीय योजना",
-    tab4: "चुकौती अनुसूची"
+    tab4: "चुकौती अनुसूची",
+    tab5: "यात्रा की तैयारी (Readiness)"
   },
   ta: {
     title: "அதி-உள்ளூர் வணிக சாத்தியக்கூறு அறிக்கை",
@@ -63,13 +67,15 @@ const translations = {
     tab1: "சந்தை பகுப்பாய்வு",
     tab2: "SWOT அணி",
     tab3: "நிதி திட்டம்",
-    tab4: "திருப்பிச் செலுத்தும் அட்டவணை"
+    tab4: "திருப்பிச் செலுத்தும் அட்டவணை",
+    tab5: "பயணத் தயார்நிலை (Readiness)"
   }
 };
 
 export default function AdvisoryDashboard() {
   const router = useRouter();
   const [lang, setLang] = useState<keyof typeof translations>('en');
+  const [showMethodologyPanel, setShowMethodologyPanel] = useState(true);
 
   const rawData = useSyncExternalStore(
     () => () => {},
@@ -81,7 +87,12 @@ export default function AdvisoryDashboard() {
     if (!rawData) return null;
     try {
       const data = JSON.parse(rawData) as Record<string, string | number>;
-      return { data, financials: FinancialCalculator.calculatePS26091(Number(data.available_margin)) };
+      const engineInput = {
+        ...data,
+        stateName: data.location || "Default",
+        availableMarginCapital: Number(data.available_margin || 0)
+      } as unknown as EntrepreneurArchetypeInput;
+      return { data, financials: FinancialCalculator.calculatePS26091(Number(data.available_margin)), readiness: EntrepreneurReadinessEngine.calculateScore(engineInput) };
     } catch {
       return null;
     }
@@ -268,7 +279,8 @@ export default function AdvisoryDashboard() {
       {/* Tabs Dashboard */}
       <div className="print:hidden">
 <Tabs defaultValue="market" className="w-full">
-        <TabsList className="w-full h-14 bg-slate-100 flex p-1 mb-8">
+        <TabsList className="w-full h-auto flex-wrap bg-slate-100 flex p-1 mb-8">
+          <TabsTrigger value="readiness" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white flex-1 min-w-[150px]">{translations[lang].tab5}</TabsTrigger>
           <TabsTrigger value="market" className="flex-1 data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm"><LayoutDashboard className="mr-2 h-4 w-4"/> {t.tab1}</TabsTrigger>
           <TabsTrigger value="swot" className="flex-1 data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm"><LineChart className="mr-2 h-4 w-4"/> {t.tab2}</TabsTrigger>
           <TabsTrigger value="financial" className="flex-1 data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm"><PieIcon className="mr-2 h-4 w-4"/> {t.tab3}</TabsTrigger>
@@ -276,6 +288,142 @@ export default function AdvisoryDashboard() {
         </TabsList>
 
         {/* 1. MARKET ANALYSIS TAB */}
+        
+        <TabsContent value="readiness" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="col-span-1 md:col-span-3 border-emerald-200 bg-emerald-50 shadow-sm print:break-inside-avoid">
+              <CardContent className="p-6">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                  <div>
+                    <h2 className="text-2xl font-bold text-emerald-900 mb-1">AHP Journey Readiness Score</h2>
+                    <p className="text-emerald-700">Deterministically evaluated across 12 distinct factors (No ML/AI Used).</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-5xl font-extrabold text-emerald-800">{assessmentData.readiness?.overallScore ?? 0}<span className="text-2xl text-emerald-600 font-normal">/100</span></div>
+                    <Badge variant="outline" className="mt-2 bg-emerald-100 text-emerald-800 border-emerald-300 px-3 py-1 text-sm">{assessmentData.readiness?.readinessBand ?? "Unknown"}</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Inline Transparency Panel */}
+            {showMethodologyPanel && (
+              <div className="col-span-1 md:col-span-3 bg-slate-50 border border-slate-200 rounded-lg p-4 relative flex flex-col md:flex-row gap-4 items-start md:items-center justify-between shadow-sm print:hidden">
+                <button 
+                  onClick={() => setShowMethodologyPanel(false)}
+                  className="absolute top-2 right-2 text-slate-400 hover:text-slate-600 transition-colors"
+                  aria-label="Dismiss"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+                <div className="flex-1 pr-6">
+                  <p className="text-sm text-slate-700 font-medium mb-1 flex items-center gap-2">
+                    <BookOpen className="h-4 w-4 text-blue-500" />
+                    This reflects readiness factors from published small-business research, not a prediction of your outcome.
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    Top drivers for your score: {assessmentData.readiness?.topPositiveFactors?.slice(0, 2).join(", ")}
+                  </p>
+                </div>
+                <Link href="/methodology" className="shrink-0">
+                  <Button variant="outline" size="sm" className="bg-white hover:bg-blue-50 text-blue-700 border-blue-200">
+                    See exactly what data and research this uses
+                  </Button>
+                </Link>
+              </div>
+            )}
+
+            <Card className="print:break-inside-avoid border-l-4 border-l-blue-500">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg flex items-center gap-2"><LayoutDashboard className="h-5 w-5 text-blue-500"/> Score Breakdown</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4 pt-2">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1 font-medium">
+                      <span>Layer 1: Archetype</span>
+                      <span>{assessmentData.readiness?.layer1ArchetypeScore ?? 0}/100</span>
+                    </div>
+                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                      <div className="bg-blue-500 h-full" style={{width: `${assessmentData.readiness?.layer1ArchetypeScore ?? 0}%`}}></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1 font-medium">
+                      <span>Layer 2: Financial</span>
+                      <span>{assessmentData.readiness?.layer2FinancialScore ?? 0}/100</span>
+                    </div>
+                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                      <div className="bg-blue-500 h-full" style={{width: `${assessmentData.readiness?.layer2FinancialScore ?? 0}%`}}></div>
+                    </div>
+                  </div>
+                  <div className="pt-2 border-t text-sm">
+                    <div className="font-semibold text-slate-700 mb-1">Layer 3: Regional Multiplier</div>
+                    <div className="flex items-center gap-2 text-blue-700 font-bold bg-blue-50 px-2 py-1 rounded w-fit">
+                      x{assessmentData.readiness?.layer3RegionalMultiplier?.toFixed(2) ?? "1.00"}
+                    </div>
+                    <p className="text-xs text-slate-500 mt-2">{assessmentData.readiness?.regionalExplanation}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="print:break-inside-avoid border-l-4 border-l-amber-500">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg flex items-center gap-2"><Target className="h-5 w-5 text-amber-500"/> Areas to Strengthen</CardTitle>
+                <CardDescription>Ranked by weighted impact</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 pt-2">
+                  {assessmentData.readiness?.areasToStrengthen?.map((factor: string, i: number) => (
+                    <li key={i} className="flex gap-2 text-sm text-slate-700">
+                      <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                      <span>{factor}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="print:break-inside-avoid border-l-4 border-l-emerald-500">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg flex items-center gap-2"><TrendingUp className="h-5 w-5 text-emerald-500"/> Profile Strengths</CardTitle>
+                <CardDescription>Top positive factors</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 pt-2">
+                  {assessmentData.readiness?.topPositiveFactors?.map((factor: string, i: number) => (
+                    <li key={i} className="flex gap-2 text-sm text-slate-700">
+                      <div className="h-4 w-4 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 mt-0.5">
+                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      </div>
+                      <span>{factor}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="col-span-1 md:col-span-3 print:break-inside-avoid shadow-sm">
+              <CardHeader className="bg-slate-50 border-b pb-4">
+                <CardTitle className="text-lg">Recommended Action Plan</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <ul className="space-y-4">
+                  {assessmentData.readiness?.recommendedNextActions?.map((action: string, i: number) => (
+                    <li key={i} className="flex gap-4">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-700 font-bold">
+                        {i + 1}
+                      </div>
+                      <p className="text-slate-700 pt-1 leading-relaxed">{action}</p>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
         <TabsContent value="market" className="space-y-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-semibold">{t.module1}</h2>

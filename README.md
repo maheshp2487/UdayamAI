@@ -25,7 +25,14 @@ This project was built to solve **Smart India Hackathon Problem Statement 26091*
    - **Quarterly EMI & Moratorium Engine**: Generates precise quarterly amortization schedules including simple interest accumulation during the moratorium.
    - **Working Capital Allocation**: Breaks down fixed costs vs operational buffer.
 
-3. **Deterministic Demo Fallback**
+3. **Journey Readiness AHP Engine**
+   A transparent, deterministic scoring engine using the Analytic Hierarchy Process (AHP) to evaluate entrepreneurial readiness without black-box ML models:
+   - **Archetype Layer (60%)**: Scores psychological traits, preparedness, and experience based on published non-financial SME viability research.
+   - **Financial Layer (40%)**: Embeds project cost viability and funding capability.
+   - **Regional Multiplier (±15%)**: Contextualizes the score against the state's entrepreneurial ecosystem index.
+   - **Transparent Methodology**: A dedicated methodology page exposing all citations, matrices, and consistency ratios (CR < 0.10) to the user.
+
+4. **Deterministic Demo Fallback**
    Even without live internet or AI API credentials, UdayamAI operates at 100% functionality using a deterministic, rule-based fallback architecture perfect for offline judging.
 
 ## Getting Started
