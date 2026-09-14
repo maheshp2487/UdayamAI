@@ -13,7 +13,8 @@ export async function POST(req: Request) {
       premisesType, 
       experienceLevel, 
       entrepreneurCategory, 
-      areaType 
+      areaType,
+      language,
     } = body;
 
     if (!idea || !location) {
@@ -32,6 +33,7 @@ export async function POST(req: Request) {
       experienceLevel: experienceLevel || 'Beginner / First-Time',
       entrepreneurCategory: entrepreneurCategory || 'General',
       areaType: areaType || 'Rural',
+      language: language === 'hi' ? 'hi' : language === 'ta' ? 'ta' : 'en',
     };
 
     const result = await runVentureAgent(input);

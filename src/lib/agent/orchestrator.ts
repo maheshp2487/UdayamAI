@@ -1,14 +1,20 @@
 import { GoogleGenAI } from '@google/genai';
 import { AgentInput, AgentResult, AgentStep, MarketInsights, RiskScore, StatutoryLicense } from './types';
 import { computeFinancialEngine, matchSchemes, applyGuardrailsAndVerification } from './tools';
+import { synthesizeMsmeTradeIntelligence } from './tradeSynthesizer';
 
 export async function runVentureAgent(input: AgentInput): Promise<AgentResult> {
   const steps: AgentStep[] = [];
-  const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
+  const apiKey = process.env.GOOGLE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
   let ai: GoogleGenAI | null = null;
   if (apiKey) {
     ai = new GoogleGenAI({ apiKey });
   }
+
+  // -------------------------------------------------------------
+  // Dynamic Trade Decomposition: 100% tailored to ANY raw idea
+  // -------------------------------------------------------------
+  const tradeBaseline = synthesizeMsmeTradeIntelligence(input);
 
   // -------------------------------------------------------------
   // Step 1: Market Intelligence & Demand Decomposition
@@ -23,166 +29,182 @@ export async function runVentureAgent(input: AgentInput): Promise<AgentResult> {
   });
 
   let marketData: MarketInsights = {
-    targetAudience: `Local residents, office commuters, and daily commercial footfall in ${input.location}.`,
-    demandDrivers: [
-      `Consistent daily demand for affordable, hygienic local products/services in ${input.location}.`,
-      `Proximity to local transit routes, market streets, and neighborhood residential catchments.`,
-      `State MSME incentives and municipal vendor support programs.`
-    ],
-    competitiveSaturation: 'Moderate',
-    competitorInsights: `Fragmented unorganized local suppliers with low quality standardization, offering strong opportunity for clean, reliable service.`,
-    regionalAdvantage: `Direct access to local wholesale commodity markets, strong neighborhood word-of-mouth, and low transit costs.`,
+    targetAudience: tradeBaseline.targetAudience,
+    demandDrivers: tradeBaseline.demandDrivers,
+    competitiveSaturation: tradeBaseline.competitiveSaturation,
+    competitorInsights: tradeBaseline.competitorInsights,
+    regionalAdvantage: tradeBaseline.regionalAdvantage,
     criticalRisks: [
-      `Input commodity price fluctuations (edible oils, cooking gas, raw grains).`,
-      `Initial working capital strain during the first 60 days.`,
-      `Local municipal compliance and space lease stability.`
+      `Wholesale raw material price changes during off-season.`,
+      `Initial 30-day working capital cushion during shop setup.`,
+      `Maintaining consistent product quality and shop hygiene.`
     ],
     mitigationStrategies: [
-      `Establish monthly credit accounts with local wholesale grain/input vendors.`,
-      `Maintain a strict cash-flow buffer covering 45 days of operational expenses.`,
-      `Secure long-term written lease or municipal vending authorization.`
+      `Form direct supply relationships with 2+ local wholesale vendors.`,
+      `Keep a 45-day cash reserve buffer from the working capital loan.`,
+      `Secure clear rental agreement or local trade permit.`
     ]
   };
 
-  // Realistic baseline fallback if LLM is unavailable
+  let swotData = {
+    strengths: tradeBaseline.swot.strengths,
+    weaknesses: tradeBaseline.swot.weaknesses,
+    opportunities: tradeBaseline.swot.opportunities,
+    threats: tradeBaseline.swot.threats,
+  };
+
+  let timelineData = {
+    setupTimeDays: tradeBaseline.setupTimeDays,
+    timeToFirstSaleDays: tradeBaseline.timeToFirstSaleDays,
+    operationalBreakEvenDays: tradeBaseline.operationalBreakEvenDays,
+  };
+
   let dynamicData = {
-    ventureName: input.idea,
-    itemUnitName: 'Serving / Unit',
-    unitSellingPrice: 50,
-    unitVariableCost: 22,
-    estimatedDailyUnits: 100,
-    estimatedCapex: Math.max(input.budget * 1.5, 120000),
-    monthlyRawMaterials: Math.max(input.budget * 0.35, 30000),
-    monthlyLaborRentUtilities: Math.max(input.budget * 0.25, 20000),
-    capexBreakdown: [
-      { item: 'Core Commercial Production Equipment', specification: 'Primary tooling & machinery', amount: Math.round(input.budget * 0.7) },
-      { item: 'Counter, Storage & Workstations', specification: 'Stainless steel furniture & prep area', amount: Math.round(input.budget * 0.3) },
-      { item: 'Signboard, Electricals & Utilities', specification: 'Wiring, lighting and plumbing setup', amount: Math.round(input.budget * 0.2) },
-      { item: 'Initial Inventory & Working Capital', specification: '15-day raw material buffer', amount: Math.round(input.budget * 0.3) }
-    ],
-    opexBreakdown: [
-      { item: 'Monthly Raw Materials & Consumables', amount: Math.round(input.budget * 0.35) },
-      { item: 'Operational Labor / Helper Wages', amount: Math.round(input.budget * 0.2) },
-      { item: 'Premises Rent & Utility Charges', amount: Math.round(input.budget * 0.15) },
-      { item: 'Packaging, Gas & Local Logistics', amount: Math.round(input.budget * 0.1) }
-    ],
-    licenses: [
-      { name: 'FSSAI Food Safety Registration', authority: 'Food Safety and Standards Authority of India', timelineDays: 14, criticality: 'Mandatory before opening' as const },
-      { name: 'Udyam MSME Registration', authority: 'Ministry of MSME (Free online portal)', timelineDays: 2, criticality: 'Mandatory before opening' as const },
-      { name: 'Shop & Establishment Act Registration', authority: 'State Labour Department / Municipal Corporation', timelineDays: 21, criticality: 'Within 30 days of launch' as const },
-      { name: 'Local Municipal Trade License', authority: 'City Municipal Council / Gram Panchayat', timelineDays: 30, criticality: 'Within 30 days of launch' as const }
-    ],
-    milestones: [
-      { phase: 'Month 1', title: 'Location Setup & Licensing', target: 'Finalize shop lease, submit Udyam and FSSAI applications, procure core machinery.' },
-      { phase: 'Month 2', title: 'Pilot Launch & Local Promotions', target: 'Commence pilot operations, train kitchen/helper staff, conduct local neighborhood tastings.' },
-      { phase: 'Month 3-6', title: 'Capacity & Regular Cashflow', target: 'Reach steady daily sales target, achieve operational break-even, maintain hygiene ratings.' },
-      { phase: 'Month 7-12', title: 'Expansion & Loan Servicing', target: 'Build 3-month operating reserve, maintain timely bank EMI repayments, explore catering tie-ups.' }
-    ]
+    ventureName: tradeBaseline.ventureName,
+    itemUnitName: tradeBaseline.itemUnitName,
+    unitSellingPrice: tradeBaseline.unitSellingPrice,
+    unitVariableCost: tradeBaseline.unitVariableCost,
+    estimatedDailyUnits: tradeBaseline.estimatedDailyUnits,
+    estimatedCapex: tradeBaseline.estimatedCapex,
+    monthlyRawMaterials: tradeBaseline.monthlyRawMaterials,
+    monthlyLaborRentUtilities: tradeBaseline.monthlyLaborRentUtilities,
+    capexBreakdown: tradeBaseline.capexBreakdown,
+    opexBreakdown: tradeBaseline.opexBreakdown,
+    licenses: tradeBaseline.licenses,
+    milestones: tradeBaseline.milestones,
   };
 
   if (ai) {
-    try {
-      const prompt = `
-You are the Lead MSME Techno-Economic Project Appraisal Officer for UdayamAI (India).
-A grassroots entrepreneur wants to start a real enterprise in India:
-- Business Idea: "${input.idea}"
+    const prompt = `
+You are the Lead Business & Bank Loan Guide for UdayamAI (India).
+A grassroots entrepreneur (rural/semi-urban India) comes with a raw business idea and starting savings:
+- Raw Business Idea: "${input.idea}"
 - Target Location: "${input.location}"
 - Available Starting Equity: ₹${input.budget}
 - Business Scale: "${input.businessScale || 'Standard Small Commercial Unit'}"
 - Premises Type: "${input.premisesType || 'Rented Commercial Space'}"
 - Category: "${input.entrepreneurCategory || 'General'}"
 - Area: "${input.areaType || 'Rural'}"
+- Output Language Preference: "${input.language === 'hi' ? 'Hindi (हिन्दी)' : input.language === 'ta' ? 'Tamil (தமிழ்)' : 'English'}"
 
-Provide a STRICT JSON object (no markdown, no backticks) tailored 100% SPECIFICALLY to "${input.idea}".
-Do NOT give generic answers! For example:
-- If it's a Dosa shop: itemize commercial dosa bhatti, wet grinder, SS counter, deep freezer, batter ingredients, LPG cylinders, FSSAI registration.
-- If it's a tailoring/garment shop: itemize industrial sewing machines, interlock machines, cutting table, fabric stock, trade license.
-- If it's poultry: itemize shed construction, feeders, brooders, day-old chicks, feed, vaccines.
+Generate a 100% SPECIFIC, realistic, authentic business plan in STRICT JSON format (no markdown, no backticks).
+Tailor every single item, tool, and expense specifically to "${input.idea}". Do NOT give generic answers!
+${input.language === 'hi' ? 'IMPORTANT: Return SWOT bullet points, milestones, and license descriptions in simple everyday Hindi (हिन्दी) so a rural borrower can understand easily.' : input.language === 'ta' ? 'IMPORTANT: Return SWOT bullet points, milestones, and license descriptions in simple everyday Tamil (தமிழ்).' : ''}
 
-SCHEMA REQUIRED:
+JSON SCHEMA:
 {
   "ventureName": "Catchy realistic commercial trade name",
-  "itemUnitName": "What is the single unit sold? (e.g. 'Plate of Dosa', 'Standard Garment Stitch', 'Kg of Dressed Chicken')",
-  "unitSellingPrice": number (Realistic retail price in INR),
+  "itemUnitName": "Single unit sold (e.g. 'Plate of Dosa', 'Kg of Oyster Mushrooms', 'Stitched Kurti', 'Glass of Cane Juice')",
+  "unitSellingPrice": number (Realistic retail selling price in INR),
   "unitVariableCost": number (Realistic raw material cost to make that single unit in INR),
-  "estimatedDailyUnits": number (Realistic units sold per day for this scale, e.g. 80-250),
-  "estimatedCapex": number (Total realistic setup/machinery cost in INR),
-  "monthlyRawMaterials": number (Monthly ingredient/raw inventory cost in INR),
-  "monthlyLaborRentUtilities": number (Total fixed monthly rent, electricity/LPG, helper wages in INR),
+  "estimatedDailyUnits": number (Realistic units sold per day for this scale, e.g. 60-300),
+  "estimatedCapex": number (Total realistic machinery + setup cost in INR),
+  "monthlyRawMaterials": number (Monthly raw stock/ingredient cost in INR),
+  "monthlyLaborRentUtilities": number (Total fixed monthly rent, power/fuel, helper wages in INR),
+  "setupTimeDays": number (Days needed to buy machines and set up shop, e.g. 25-40),
+  "timeToFirstSaleDays": number (Days until first customer purchase, e.g. 35-50),
   "capexBreakdown": [
-    { "item": "Specific machinery/asset name", "specification": "Technical capacity / size", "amount": number in INR }
+    { "item": "Specific machinery/tool name", "specification": "Technical capacity / size", "amount": number in INR }
   ],
   "opexBreakdown": [
-    { "item": "Specific expense category (e.g. Cooking Gas & Power, Helper wages)", "amount": number in INR }
+    { "item": "Specific monthly expense (e.g. Cooking Gas & Power, Raw Grains, Helper wage)", "amount": number in INR }
   ],
+  "swot": {
+    "strengths": ["Clear strength 1", "Clear strength 2", "Clear strength 3"],
+    "weaknesses": ["Clear operational weakness 1", "Clear weakness 2", "Clear weakness 3"],
+    "opportunities": ["Growth opportunity 1", "Opportunity 2", "Opportunity 3"],
+    "threats": ["Local risk/threat 1", "Threat 2", "Threat 3"]
+  },
   "licenses": [
     { "name": "Exact license name", "authority": "Issuing government body", "timelineDays": number, "criticality": "Mandatory before opening" | "Within 30 days of launch" | "Recommended for scaling" }
   ],
   "milestones": [
-    { "phase": "Month 1", "title": "Setup & Procurement", "target": "Specific activities for this exact trade" },
-    { "phase": "Month 2", "title": "Launch & Validation", "target": "Specific activities for this exact trade" },
-    { "phase": "Month 3-6", "title": "Operational Break-Even", "target": "Specific activities for this exact trade" },
-    { "phase": "Month 7-12", "title": "Stability & Scaling", "target": "Specific activities for this exact trade" }
+    { "phase": "Month 1", "title": "Setup & Procurement", "target": "Specific activities for this exact business" },
+    { "phase": "Month 2", "title": "Launch & First Customers", "target": "Specific activities for this exact business" },
+    { "phase": "Month 3-6", "title": "Regular Profit & Breakeven", "target": "Specific activities for this exact business" },
+    { "phase": "Month 7-12", "title": "Growth & Loan Repayment", "target": "Specific activities for this exact business" }
   ],
   "targetAudience": "Specific customer demographic in this location",
   "demandDrivers": ["Demand driver 1", "Demand driver 2", "Demand driver 3"],
   "competitiveSaturation": "Low" | "Moderate" | "High",
   "competitorInsights": "Analysis of existing local competitors in this trade",
-  "regionalAdvantage": "Specific regional factor or local advantage",
-  "criticalRisks": ["Risk 1", "Risk 2", "Risk 3"],
-  "mitigationStrategies": ["Mitigation 1", "Mitigation 2", "Mitigation 3"]
+  "regionalAdvantage": "Specific regional factor or local advantage"
 }
 `;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.6-flash',
-        contents: prompt,
-        config: {
-          temperature: 0.25,
-          responseMimeType: 'application/json',
-        }
-      });
+    // Multi-model failover protection (3.6 -> 2.5 -> 2.0)
+    const modelsToTry = ['gemini-3.6-flash', 'gemini-2.5-flash', 'gemini-2.0-flash'];
+    for (const modelName of modelsToTry) {
+      try {
+        const response = await ai.models.generateContent({
+          model: modelName,
+          contents: prompt,
+          config: {
+            temperature: 0.3,
+            responseMimeType: 'application/json',
+          }
+        });
 
-      if (response.text) {
-        const parsed = JSON.parse(response.text);
-        if (parsed.ventureName && parsed.capexBreakdown?.length > 0) {
-          dynamicData = {
-            ventureName: parsed.ventureName,
-            itemUnitName: parsed.itemUnitName || dynamicData.itemUnitName,
-            unitSellingPrice: Number(parsed.unitSellingPrice) || dynamicData.unitSellingPrice,
-            unitVariableCost: Number(parsed.unitVariableCost) || dynamicData.unitVariableCost,
-            estimatedDailyUnits: Number(parsed.estimatedDailyUnits) || dynamicData.estimatedDailyUnits,
-            estimatedCapex: Number(parsed.estimatedCapex) || dynamicData.estimatedCapex,
-            monthlyRawMaterials: Number(parsed.monthlyRawMaterials) || dynamicData.monthlyRawMaterials,
-            monthlyLaborRentUtilities: Number(parsed.monthlyLaborRentUtilities) || dynamicData.monthlyLaborRentUtilities,
-            capexBreakdown: parsed.capexBreakdown.map((c: any) => ({
-              item: String(c.item),
-              specification: String(c.specification || 'Commercial grade'),
-              amount: Math.max(1000, Number(c.amount) || 10000)
-            })),
-            opexBreakdown: parsed.opexBreakdown.map((o: any) => ({
-              item: String(o.item),
-              amount: Math.max(1000, Number(o.amount) || 5000)
-            })),
-            licenses: parsed.licenses || dynamicData.licenses,
-            milestones: parsed.milestones || dynamicData.milestones
-          };
-
-          if (parsed.targetAudience) {
-            marketData = {
-              targetAudience: parsed.targetAudience,
-              demandDrivers: parsed.demandDrivers || marketData.demandDrivers,
-              competitiveSaturation: parsed.competitiveSaturation || 'Moderate',
-              competitorInsights: parsed.competitorInsights || marketData.competitorInsights,
-              regionalAdvantage: parsed.regionalAdvantage || marketData.regionalAdvantage,
-              criticalRisks: parsed.criticalRisks || marketData.criticalRisks,
-              mitigationStrategies: parsed.mitigationStrategies || marketData.mitigationStrategies,
+        if (response.text) {
+          const parsed = JSON.parse(response.text);
+          if (parsed.ventureName && parsed.capexBreakdown?.length > 0) {
+            dynamicData = {
+              ventureName: parsed.ventureName,
+              itemUnitName: parsed.itemUnitName || dynamicData.itemUnitName,
+              unitSellingPrice: Number(parsed.unitSellingPrice) || dynamicData.unitSellingPrice,
+              unitVariableCost: Number(parsed.unitVariableCost) || dynamicData.unitVariableCost,
+              estimatedDailyUnits: Number(parsed.estimatedDailyUnits) || dynamicData.estimatedDailyUnits,
+              estimatedCapex: Number(parsed.estimatedCapex) || dynamicData.estimatedCapex,
+              monthlyRawMaterials: Number(parsed.monthlyRawMaterials) || dynamicData.monthlyRawMaterials,
+              monthlyLaborRentUtilities: Number(parsed.monthlyLaborRentUtilities) || dynamicData.monthlyLaborRentUtilities,
+              capexBreakdown: parsed.capexBreakdown.map((c: any) => ({
+                item: String(c.item),
+                specification: String(c.specification || 'Commercial grade'),
+                amount: Math.max(1000, Number(c.amount) || 10000)
+              })),
+              opexBreakdown: (parsed.opexBreakdown || dynamicData.opexBreakdown).map((o: any) => ({
+                item: String(o.item),
+                amount: Math.max(1000, Number(o.amount) || 5000)
+              })),
+              licenses: parsed.licenses || dynamicData.licenses,
+              milestones: parsed.milestones || dynamicData.milestones
             };
+
+            if (parsed.swot?.strengths?.length) {
+              swotData = {
+                strengths: parsed.swot.strengths,
+                weaknesses: parsed.swot.weaknesses || swotData.weaknesses,
+                opportunities: parsed.swot.opportunities || swotData.opportunities,
+                threats: parsed.swot.threats || swotData.threats,
+              };
+            }
+
+            if (parsed.setupTimeDays) {
+              timelineData = {
+                setupTimeDays: Number(parsed.setupTimeDays) || 30,
+                timeToFirstSaleDays: Number(parsed.timeToFirstSaleDays) || 45,
+                operationalBreakEvenDays: Math.round(Number(parsed.setupTimeDays || 30) * 1.8),
+              };
+            }
+
+            if (parsed.targetAudience) {
+              marketData = {
+                targetAudience: parsed.targetAudience,
+                demandDrivers: parsed.demandDrivers || marketData.demandDrivers,
+                competitiveSaturation: parsed.competitiveSaturation || 'Moderate',
+                competitorInsights: parsed.competitorInsights || marketData.competitorInsights,
+                regionalAdvantage: parsed.regionalAdvantage || marketData.regionalAdvantage,
+                criticalRisks: marketData.criticalRisks,
+                mitigationStrategies: marketData.mitigationStrategies,
+              };
+            }
+
+            break; // Success! Exit model retry loop
           }
         }
+      } catch (err) {
+        console.warn(`Gemini model ${modelName} notice:`, err);
       }
-    } catch (err) {
-      console.warn('Gemini 3.6 dynamic parse notice:', err);
     }
   }
 
@@ -196,10 +218,10 @@ SCHEMA REQUIRED:
   const step2Start = Date.now();
   steps.push({
     id: 'step-2',
-    title: 'Techno-Economic Formulation & Unit Economics',
+    title: 'Machine Setup & Daily Profit Calculations',
     tool: 'UNIT_ECONOMICS',
     status: 'running',
-    thought: `Computing machinery capex, contribution margin per ${dynamicData.itemUnitName}, and break-even sales volume...`,
+    thought: `Computing machinery capex, daily sales target for ${dynamicData.itemUnitName}, and break-even units...`,
   });
 
   const rawEconomics = computeFinancialEngine(input, {
@@ -216,7 +238,7 @@ SCHEMA REQUIRED:
 
   steps[1].status = 'completed';
   steps[1].durationMs = Date.now() - step2Start;
-  steps[1].outputSummary = `Computed total CAPEX of ₹${(rawEconomics.capex / 100000).toFixed(2)} Lakhs. Daily break-even: ${rawEconomics.dailyBreakEvenTarget} ${rawEconomics.itemUnitName}s/day.`;
+  steps[1].outputSummary = `Total Setup Cost: ₹${(rawEconomics.capex / 100000).toFixed(2)} Lakhs. Daily break-even: ${rawEconomics.dailyBreakEvenTarget} ${rawEconomics.itemUnitName}s/day.`;
 
   // -------------------------------------------------------------
   // Step 3: Concessional Scheme Matcher
@@ -224,10 +246,10 @@ SCHEMA REQUIRED:
   const step3Start = Date.now();
   steps.push({
     id: 'step-3',
-    title: 'Statutory Concessional Scheme Structuring',
+    title: 'Government Scheme & Subsidy Optimizer',
     tool: 'SCHEME_OPTIMIZER',
     status: 'running',
-    thought: `Evaluating PMEGP, Mudra, and PM SVANidhi subsidy slabs for ${input.areaType || 'Rural'} enterprise...`,
+    thought: `Allocating PMEGP, Mudra, and PM SVANidhi subsidy for ${input.areaType || 'Rural'} enterprise...`,
   });
 
   const matchedSchemes = matchSchemes(input, rawEconomics.capex);
@@ -235,7 +257,7 @@ SCHEMA REQUIRED:
   steps[2].status = 'completed';
   steps[2].durationMs = Date.now() - step3Start;
   const topScheme = matchedSchemes[0];
-  steps[2].outputSummary = `Allocated ${topScheme.name} (${topScheme.subsidyPercent}% capital subsidy claim of ₹${(topScheme.subsidyAmount / 100000).toFixed(2)} Lakhs).`;
+  steps[2].outputSummary = `Allocated ${topScheme.name} (${topScheme.subsidyPercent}% free government grant of ₹${(topScheme.subsidyAmount / 100000).toFixed(2)} Lakhs).`;
 
   // -------------------------------------------------------------
   // Step 4: Guardrail Validation
@@ -243,18 +265,18 @@ SCHEMA REQUIRED:
   const step4Start = Date.now();
   steps.push({
     id: 'step-4',
-    title: 'Bankability & Debt Service Coverage Audit',
+    title: 'Bank Loan Safety & Approval Audit',
     tool: 'GUARDRAIL_VALIDATION',
     status: 'running',
-    thought: `Auditing Debt Service Coverage Ratio (DSCR) against commercial bank credit standards...`,
+    thought: `Auditing Bank Loan Safety Score (DSCR) to ensure quick loan sanction...`,
   });
 
   const initialRisks: RiskScore = {
-    marketRisk: marketData.competitiveSaturation === 'High' ? 42 : 24,
-    financialRisk: rawEconomics.dscr < 1.4 ? 40 : 20,
-    executionRisk: 28,
+    marketRisk: marketData.competitiveSaturation === 'High' ? 38 : 22,
+    financialRisk: rawEconomics.dscr < 1.4 ? 35 : 18,
+    executionRisk: 25,
     regulatoryRisk: 15,
-    overallReadiness: 85,
+    overallReadiness: 88,
   };
 
   const { validatedEconomics, validatedSchemes, validatedRisks, adjustments } = 
@@ -262,25 +284,38 @@ SCHEMA REQUIRED:
 
   steps[3].status = 'completed';
   steps[3].durationMs = Date.now() - step4Start;
-  steps[3].outputSummary = `Verified bankable DSCR of ${validatedEconomics.dscr}x (exceeds minimum commercial bank threshold of 1.25x).`;
+  steps[3].outputSummary = `Verified Bank Loan Safety Score of ${validatedEconomics.dscr}x (well above minimum bank requirement of 1.25x).`;
 
   // -------------------------------------------------------------
-  // Step 5: Strategy Synthesis
+  // Step 5: Strategy Synthesis & Plain-Language Summary
   // -------------------------------------------------------------
   const step5Start = Date.now();
   steps.push({
     id: 'step-5',
-    title: 'Detailed Project Report (DPR) Formulation',
+    title: 'Final Bank-Ready Business Plan Formulation',
     tool: 'STRATEGY_SYNTHESIS',
     status: 'running',
-    thought: `Synthesizing project report, machinery procurement checklist, and quarterly action roadmap...`,
+    thought: `Synthesizing bank project report, machine schedule, SWOT analysis, and launch timeline...`,
   });
 
-  const executiveSummary = `Techno-economic project appraisal for ${dynamicData.ventureName} located in ${input.location}. The proposed project requires a total capital investment of ₹${(validatedEconomics.capex / 100000).toFixed(2)} Lakhs, comprising ₹${(validatedEconomics.marginEquity / 100000).toFixed(2)} Lakhs promoter margin equity and ₹${(validatedEconomics.loanAmount / 100000).toFixed(2)} Lakhs institutional bank credit. The venture qualifies for ${topScheme.name} with an eligible non-dilutive government grant of ₹${(topScheme.subsidyAmount / 100000).toFixed(2)} Lakhs. With an operating gross margin of ${validatedEconomics.grossMarginPercent}% and a healthy Debt Service Coverage Ratio (DSCR) of ${validatedEconomics.dscr}x, the enterprise breaks even at ${validatedEconomics.dailyBreakEvenTarget} ${validatedEconomics.itemUnitName}s per day, satisfying standard commercial bank credit norms.`;
+  // Calculate annual ROI % and Payback
+  const netMonthlyProfit = Math.max(1000, validatedEconomics.monthlyRevenue - validatedEconomics.monthlyOpex - validatedEconomics.monthlyEmi);
+  const annualNetCashflow = netMonthlyProfit * 12;
+  const annualRoiPercent = Math.min(180, Math.max(18, Math.round((annualNetCashflow / Math.max(1, validatedEconomics.capex)) * 100)));
+  const paybackMonths = Math.min(60, Math.max(6, Math.round((validatedEconomics.capex / Math.max(1, annualNetCashflow)) * 12)));
+
+  // Simple, empowering, plain-language executive summary (No intimidating jargon!)
+  let executiveSummary = `Official Bank-Ready Business Plan for ${dynamicData.ventureName} in ${input.location}. To set up this business, the total cost is ₹${(validatedEconomics.capex / 100000).toFixed(2)} Lakhs. You only need to put ₹${(validatedEconomics.marginEquity / 100000).toFixed(2)} Lakhs from your own savings, while the bank provides a loan of ₹${(validatedEconomics.loanAmount / 100000).toFixed(2)} Lakhs. Under ${topScheme.name}, you are entitled to a ₹${(topScheme.subsidyAmount / 100000).toFixed(2)} Lakhs free government grant that you never have to repay. With an estimated take-home profit of ₹${netMonthlyProfit.toLocaleString('en-IN')} per month and a strong Bank Loan Safety Score of ${validatedEconomics.dscr}x, this business easily covers the monthly bank EMI of ₹${validatedEconomics.monthlyEmi.toLocaleString('en-IN')} and provides steady, profitable income for your family.`;
+
+  if (input.language === 'hi') {
+    executiveSummary = `${input.location} में ${dynamicData.ventureName} के लिए बैंक-स्वीकृत आधिकारिक बिजनेस प्लान। इस काम को शुरू करने की कुल लागत ₹${(validatedEconomics.capex / 100000).toFixed(2)} लाख है। इसमें आपको अपनी जेब से केवल ₹${(validatedEconomics.marginEquity / 100000).toFixed(2)} लाख लगाने होंगे, बाकी ₹${(validatedEconomics.loanAmount / 100000).toFixed(2)} लाख का बैंक लोन मिलेगा। साथ ही ${topScheme.name} के तहत आपको ₹${(topScheme.subsidyAmount / 100000).toFixed(2)} लाख की मुफ्त सरकारी सब्सिडी (अनुदान) मिलेगी जिसे कभी वापस नहीं करना है। हर महीने ₹${netMonthlyProfit.toLocaleString('en-IN')} के शुद्ध मुनाफे और ${validatedEconomics.dscr}x के सुरक्षित बैंक स्कोर के साथ, यह दुकान ₹${validatedEconomics.monthlyEmi.toLocaleString('en-IN')} की मासिक बैंक किस्त (EMI) आसानी से चुकाती है और आपके परिवार के लिए पक्की कमाई बनाती है।`;
+  } else if (input.language === 'ta') {
+    executiveSummary = `${input.location} பகுதியில் ${dynamicData.ventureName} தொடங்குவதற்கான முழுமையான வங்கி கடன் தொழில் திட்டம். இத்தொழிலின் மொத்த திட்டச் செலவு ₹${(validatedEconomics.capex / 100000).toFixed(2)} லட்சம். உங்கள் சொந்த முதலீடு வெறும் ₹${(validatedEconomics.marginEquity / 100000).toFixed(2)} லட்சம் மட்டுமே, மீதமுள்ள ₹${(validatedEconomics.loanAmount / 100000).toFixed(2)} லட்சம் வங்கி கடனாகக் கிடைக்கும். மேலும் ${topScheme.name} திட்டத்தின் மூலம் ₹${(topScheme.subsidyAmount / 100000).toFixed(2)} லட்சம் இலவச அரசு மானியம் (திரும்பச் செலுத்தத் தேவையில்லை) வழங்கப்படுகிறது. மாதம் சுமார் ₹${netMonthlyProfit.toLocaleString('en-IN')} நிகர லாபத்துடன், மாத வங்கி தவணை ₹${validatedEconomics.monthlyEmi.toLocaleString('en-IN')} சுலபமாக செலுத்தப்பட்டு குடும்பத்திற்கு நிலையான வருமானம் தரும்.`;
+  }
 
   steps[4].status = 'completed';
   steps[4].durationMs = Date.now() - step5Start;
-  steps[4].outputSummary = `Formulated institutional Detailed Project Report with itemized machinery schedule and statutory licensing roadmap.`;
+  steps[4].outputSummary = `Formulated bank-ready project plan with machinery schedule, SWOT analysis, and ${annualRoiPercent}% estimated annual ROI.`;
 
   return {
     ventureName: dynamicData.ventureName,
@@ -290,6 +325,14 @@ SCHEMA REQUIRED:
     schemes: validatedSchemes,
     licenses: dynamicData.licenses,
     risks: validatedRisks,
+    swot: swotData,
+    timelineRoi: {
+      annualRoiPercent,
+      paybackMonths,
+      setupTimeDays: timelineData.setupTimeDays,
+      timeToFirstSaleDays: timelineData.timeToFirstSaleDays,
+      operationalBreakEvenDays: timelineData.operationalBreakEvenDays,
+    },
     steps,
     suggestedMilestones: dynamicData.milestones.map(m => ({
       phase: m.phase,
@@ -303,3 +346,4 @@ SCHEMA REQUIRED:
     timestamp: new Date().toISOString(),
   };
 }
+

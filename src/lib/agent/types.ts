@@ -7,6 +7,7 @@ export interface AgentInput {
   experienceLevel?: 'Beginner / First-Time' | 'Experienced (1-3 Years)' | 'Skilled / Artisan';
   entrepreneurCategory?: 'General' | 'Women' | 'SC / ST' | 'OBC / Minorities' | 'Ex-Servicemen';
   areaType?: 'Rural' | 'Urban';
+  language?: 'en' | 'hi' | 'ta';
 }
 
 export type AgentToolType = 
@@ -78,6 +79,21 @@ export interface MarketInsights {
   mitigationStrategies: string[];
 }
 
+export interface SwotAnalysis {
+  strengths: string[];
+  weaknesses: string[];
+  opportunities: string[];
+  threats: string[];
+}
+
+export interface LaunchRoiTimeline {
+  annualRoiPercent: number;
+  paybackMonths: number;
+  setupTimeDays: number;
+  timeToFirstSaleDays: number;
+  operationalBreakEvenDays: number;
+}
+
 export interface RiskScore {
   marketRisk: number;
   financialRisk: number;
@@ -94,6 +110,8 @@ export interface AgentResult {
   schemes: SchemeMatch[];
   licenses: StatutoryLicense[];
   risks: RiskScore;
+  swot: SwotAnalysis;
+  timelineRoi: LaunchRoiTimeline;
   steps: AgentStep[];
   suggestedMilestones: { phase: string; title: string; target: string }[];
   guardrailVerdict: {

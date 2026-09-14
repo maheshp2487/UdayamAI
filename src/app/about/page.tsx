@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Building2, 
@@ -13,23 +14,51 @@ import {
   FileSpreadsheet 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Language, translations } from '@/lib/i18n/translations';
 
 export default function AboutPage() {
+  const [lang, setLang] = useState<Language>('en');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedLang = localStorage.getItem('udayam_language') as Language;
+      if (storedLang && (storedLang === 'en' || storedLang === 'hi' || storedLang === 'ta')) {
+        setLang(storedLang);
+      }
+
+      const handleLangChange = (e: Event) => {
+        const detail = (e as CustomEvent).detail;
+        if (detail && (detail === 'en' || detail === 'hi' || detail === 'ta')) {
+          setLang(detail);
+        }
+      };
+
+      window.addEventListener('udayam_language_changed', handleLangChange);
+      return () => window.removeEventListener('udayam_language_changed', handleLangChange);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-50/60 text-slate-900 pb-20">
       
       {/* Hero Header */}
       <section className="bg-white border-b border-slate-200 py-12 md:py-16">
         <div className="container mx-auto px-4 sm:px-6 max-w-4xl text-center space-y-4">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-xs font-semibold text-blue-700">
-            <Building2 className="h-3.5 w-3.5" />
-            <span>Public Digital Infrastructure for Indian MSMEs</span>
+          <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-xs font-semibold text-amber-900">
+            <Building2 className="h-3.5 w-3.5 text-amber-600" />
+            <span>
+              {lang === 'hi' ? 'भारतीय सूक्ष्म एवं लघु उद्यमों के लिए डिजिटल मंच' : lang === 'ta' ? 'இந்திய சிறுதொழில்களுக்கான பொது டிஜிட்டல் தளம்' : 'Public Digital Infrastructure for Indian MSMEs'}
+            </span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
-            Democratizing Formal Credit for India's 63 Million Micro-Enterprises
+            {lang === 'hi' ? 'भारत के 6.3 करोड़ सूक्ष्म उद्यमियों के लिए ऋण लोकतंत्रीकरण' : lang === 'ta' ? 'இந்தியாவின் 6.3 கோடி சிறு வணிகர்களுக்கான எளிய வங்கி கடன்' : "Democratizing Formal Credit for India's 63 Million Micro-Enterprises"}
           </h1>
           <p className="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            UdayamAI automates techno-economic feasibility appraisal, statutory subsidy structuring, and bank-grade credit underwriting for grassroots entrepreneurs.
+            {lang === 'hi'
+              ? 'उदयमएआई ग्रामीण व कस्बाई उद्यमियों के लिए तकनीकी-आर्थिक व्यवहार्यता, सरकारी सब्सिडी संरचना और बैंक-ग्रेड क्रेडिट अंडरराइटिंग को स्वचालित करता है।'
+              : lang === 'ta'
+              ? 'உதயம் ஏஐ கிராமப்புற தொழில்முனைவோருக்கான திட்ட சாத்தியக்கூறு, அரசு மானிய கட்டமைப்பு மற்றும் வங்கி கடன் அறிக்கைகளை உடனே வழங்குகிறது.'
+              : 'UdayamAI automates techno-economic feasibility appraisal, statutory subsidy structuring, and bank-grade credit underwriting for grassroots entrepreneurs.'}
           </p>
         </div>
       </section>
@@ -37,8 +66,8 @@ export default function AboutPage() {
       <section className="container mx-auto px-4 sm:px-6 max-w-4xl pt-10 space-y-10">
         
         {/* The Problem */}
-        <div className="p-6 sm:p-8 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
-          <span className="text-xs font-bold text-blue-600 uppercase tracking-wider">The Credit Dilemma</span>
+        <div className="p-6 sm:p-8 rounded-2xl bg-white border border-amber-200/70 shadow-xs space-y-4">
+          <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">The Credit Dilemma</span>
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
             The Missing Bridge in Indian MSME Banking
           </h2>
@@ -58,8 +87,8 @@ export default function AboutPage() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-            <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs space-y-2.5">
-              <div className="h-9 w-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700">
+            <div className="p-5 rounded-2xl bg-white border border-amber-200/70 shadow-xs space-y-2.5">
+              <div className="h-9 w-9 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
                 <FileSpreadsheet className="h-5 w-5" />
               </div>
               <h3 className="text-sm font-bold text-slate-900">Dynamic DPR Formulation</h3>
@@ -68,8 +97,8 @@ export default function AboutPage() {
               </p>
             </div>
 
-            <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs space-y-2.5">
-              <div className="h-9 w-9 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
+            <div className="p-5 rounded-2xl bg-white border border-emerald-200/70 shadow-xs space-y-2.5">
+              <div className="h-9 w-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
                 <ShieldCheck className="h-5 w-5" />
               </div>
               <h3 className="text-sm font-bold text-slate-900">Deterministic Banking Norms</h3>
@@ -78,8 +107,8 @@ export default function AboutPage() {
               </p>
             </div>
 
-            <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs space-y-2.5">
-              <div className="h-9 w-9 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-700">
+            <div className="p-5 rounded-2xl bg-white border border-amber-200/70 shadow-xs space-y-2.5">
+              <div className="h-9 w-9 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
                 <Globe2 className="h-5 w-5" />
               </div>
               <h3 className="text-sm font-bold text-slate-900">Statutory Subsidy Maximization</h3>
@@ -91,7 +120,7 @@ export default function AboutPage() {
         </div>
 
         {/* Institutional Integrity & Data Privacy */}
-        <div className="p-6 sm:p-8 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+        <div className="p-6 sm:p-8 rounded-2xl bg-white border border-amber-200/70 shadow-xs space-y-4">
           <div className="flex items-center space-x-2">
             <Award className="h-5 w-5 text-emerald-600" />
             <h3 className="text-lg font-bold text-slate-900">Institutional Commitments & Open Access</h3>
@@ -125,15 +154,17 @@ export default function AboutPage() {
         </div>
 
         {/* CTA */}
-        <div className="p-8 rounded-2xl bg-white border border-slate-200 shadow-xs text-center space-y-4">
-          <h3 className="text-xl font-bold text-slate-900">Ready to appraise your enterprise?</h3>
+        <div className="p-8 rounded-2xl bg-white border border-amber-200/80 shadow-xs text-center space-y-4">
+          <h3 className="text-xl font-bold text-slate-900">
+            {lang === 'hi' ? 'क्या आप अपने उद्यम की रिपोर्ट तैयार करने के लिए तैयार हैं?' : lang === 'ta' ? 'உங்கள் திட்ட அறிக்கையை பெற தயாரா?' : 'Ready to appraise your enterprise?'}
+          </h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">
-            Take 2 minutes to enter your trade concept and margin capital to formulate your bank-standard Detailed Project Report.
+            Take 2 minutes to answer 5 simple questions to formulate your bank-standard Detailed Project Report with zero consultancy fees.
           </p>
           <div className="pt-2">
             <Link href="/agent">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-6 py-2.5 rounded-lg shadow-2xs">
-                <span>Start Step-by-Step Appraisal</span>
+              <Button className="bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs px-6 py-3 rounded-xl shadow-xs">
+                <span>{lang === 'hi' ? 'परियोजना रिपोर्ट शुरू करें' : lang === 'ta' ? 'திட்ட அறிக்கை தொடங்கவும்' : 'Start Step-by-Step Appraisal'}</span>
                 <ArrowRight className="h-4 w-4 ml-1.5" />
               </Button>
             </Link>
