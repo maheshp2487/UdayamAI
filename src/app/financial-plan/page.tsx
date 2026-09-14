@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -6,10 +7,12 @@ export default function FinancialPlanRedirect() {
   const router = useRouter();
 
   useEffect(() => {
-    // The new PS 26091 architecture integrates the financial structuring 
-    // directly into the main Business Feasibility dashboard.
-    router.push('/advisor/results');
+    router.replace('/agent');
   }, [router]);
 
-  return <div className="p-12 text-center">Loading Financial Structure...</div>;
+  return (
+    <div className="min-h-screen bg-white flex items-center justify-center text-xs text-slate-500">
+      Redirecting to Techno-Economic Feasibility Studio...
+    </div>
+  );
 }

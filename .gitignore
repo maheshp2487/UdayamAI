@@ -36,6 +36,7 @@ yarn-error.log*
 !.env.example
 
 # IDE / AI Assistants
+.vscode
 .gemini
 .agents
 AGENTS.md

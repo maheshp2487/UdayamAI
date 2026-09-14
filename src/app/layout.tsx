@@ -7,8 +7,8 @@ import { Footer } from "@/components/layout/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "UdayamAI - Business Feasibility & Financial Structuring",
-  description: "Know your market. Plan your business. Build your future.",
+  title: "UdayamAI — Project Feasibility & Credit Appraisal Platform",
+  description: "Techno-economic project appraisal, dynamic unit economics, and concessional MSME subsidy structuring for Indian enterprises.",
 };
 
 export default function RootLayout({
@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} min-h-screen flex flex-col bg-background antialiased`}>
+      <body className={`${inter.className} min-h-screen flex flex-col bg-white text-slate-900 antialiased selection:bg-blue-600 selection:text-white`}>
         <Header />
         <main className="flex-1 flex flex-col">
           {children}
